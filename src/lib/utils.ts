@@ -65,8 +65,8 @@ export function colorForSBCPct(v: number): string {
 }
 
 export function bgForSBCPct(v: number): string {
-  if (v > 30) return "bg-red-500/20 text-red-400"
-  if (v > 18) return "bg-orange-500/20 text-orange-400"
-  if (v > 8) return "bg-yellow-500/20 text-yellow-400"
-  return "bg-green-500/20 text-green-400"
+  if (v > 30) return "bg-red-500/25 text-red-300 border border-red-500/20"
+  if (v > 18) return "bg-orange-500/25 text-orange-300 border border-orange-500/20"
+  if (v > 8) return "bg-yellow-500/25 text-yellow-300 border border-yellow-500/20"
+  return "bg-green-500/25 text-green-300 border border-green-500/20"
 }
