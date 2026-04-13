@@ -47,7 +47,6 @@ import {
 
 type SortKey = keyof CompanyWithMetrics
 type SortDir = "asc" | "desc"
-type ViewTab = "table" | "scatter" | "bar"
 
 const GRID_STROKE = "#e2e8f0"
 const AXIS_FILL = "#64748b"
@@ -60,7 +59,6 @@ export default function MeltdownDashboard() {
   const [sortDir, setSortDir] = useState<SortDir>("asc")
   const [filter, setFilter] = useState("")
   const [selectedCompany, setSelectedCompany] = useState<CompanyWithMetrics | null>(null)
-  const [activeTab, setActiveTab] = useState<ViewTab>("table")
   const [showMethodology, setShowMethodology] = useState(false)
 
   const filtered = useMemo(() => {
@@ -114,6 +112,10 @@ export default function MeltdownDashboard() {
   const medianYTD = sortedByYTD[Math.floor(data.length / 2)]
   const worstStock = sortedByYTD[0]
   const downCount = data.filter((c) => c.pctYTD < 0).length
+
+  // Hall of Shame picks
+  const worstValueDestroyed = [...data].sort((a, b) => b.valueDestroyedB - a.valueDestroyedB)[0]
+  const worstSBCValueLost = [...data].sort((a, b) => b.sbcValueLostM - a.sbcValueLostM)[0]
 
   return (
     <div className="min-h-screen bg-base text-text-primary">
@@ -245,6 +247,9 @@ export default function MeltdownDashboard() {
           </div>
         </section>
 
+        {/* ═══ DILUTION EXPLAINER ═══ */}
+        <DilutionExplainer />
+
         {/* ═══ METHODOLOGY ═══ */}
         <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-sm">
           <button
@@ -334,26 +339,25 @@ export default function MeltdownDashboard() {
           </ChartCard>
         </section>
 
-        {/* ═══ TAB BAR ═══ */}
-        <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-sm">
-          <div className="flex flex-wrap items-center gap-1 px-2 sm:px-4 pt-2 sm:pt-3 pb-0 border-b border-border">
-            {(["table", "scatter", "bar"] as ViewTab[]).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-3 sm:px-4 py-2.5 text-sm font-semibold capitalize transition-all border-b-2 -mb-[1px] rounded-t-md ${
-                  activeTab === tab
-                    ? "border-accent text-accent bg-accent/5"
-                    : "border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-50"
-                }`}
-              >
-                {tab === "scatter" ? "Scatter" : tab === "bar" ? "Bar" : "Table"}
-              </button>
-            ))}
-          </div>
+        {/* ═══ HALL OF SHAME ═══ */}
+        <HallOfShame
+          worstValue={worstValueDestroyed}
+          worstSBCPct={worstOffender}
+          worstYTD={worstStock}
+          worstSBCLost={worstSBCValueLost}
+          worstPerEmp={highestSBCPerEmp}
+          onSelect={setSelectedCompany}
+        />
 
-          {activeTab === "table" && (
-            <div className="px-3 sm:px-4 pt-3">
+        {/* ═══ FULL TABLE ═══ */}
+        <section>
+          <SectionHeader
+            eyebrow="Explore the data"
+            title="Full Company Table"
+            subtitle={`All ${data.length} companies. Click any row for a full breakdown.`}
+          />
+          <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-sm">
+            <div className="px-3 sm:px-4 pt-4 pb-2">
               <input
                 type="text"
                 placeholder="Filter by ticker or name..."
@@ -362,31 +366,48 @@ export default function MeltdownDashboard() {
                 className="bg-base border border-border rounded-lg px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 w-full sm:w-64 transition-all"
               />
             </div>
-          )}
-
-          {/* ═══ VIEWS ═══ */}
-          <div className="p-1">
-            {activeTab === "table" && (
-              <>
-                <div className="hidden sm:block">
-                  <SBCTable
-                    data={filtered}
-                    sortKey={sortKey}
-                    sortDir={sortDir}
-                    onSort={toggleSort}
-                    onSelect={setSelectedCompany}
-                  />
-                </div>
-                <div className="sm:hidden">
-                  <MobileSortBar sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
-                  <MobileCardList data={filtered} onSelect={setSelectedCompany} />
-                </div>
-              </>
-            )}
-            {activeTab === "scatter" && <SBCScatterPlot data={data} onSelect={setSelectedCompany} />}
-            {activeTab === "bar" && <SBCBarChart data={data} onSelect={setSelectedCompany} />}
+            <div className="hidden sm:block">
+              <SBCTable
+                data={filtered}
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+                onSelect={setSelectedCompany}
+              />
+            </div>
+            <div className="sm:hidden">
+              <MobileSortBar sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
+              <MobileCardList data={filtered} onSelect={setSelectedCompany} />
+            </div>
           </div>
-        </div>
+        </section>
+
+        {/* ═══ SCATTER PLOT ═══ */}
+        <section>
+          <SectionHeader
+            eyebrow="Correlation"
+            title="SBC % Revenue vs Value Destroyed"
+            subtitle="Each dot is a company. Size = market cap, color = YTD performance. Look for the big red dots — worst on both axes."
+          />
+          <div className="bg-surface border border-border rounded-2xl shadow-sm overflow-hidden">
+            <SBCScatterPlot data={data} onSelect={setSelectedCompany} />
+          </div>
+        </section>
+
+        {/* ═══ BAR CHART ═══ */}
+        <section>
+          <SectionHeader
+            eyebrow="Scale"
+            title="Top 15 by Annual SBC"
+            subtitle="Who issues the most stock-based compensation in raw dollars. Color-coded by how much of revenue that represents."
+          />
+          <div className="bg-surface border border-border rounded-2xl shadow-sm overflow-hidden">
+            <SBCBarChart data={data} onSelect={setSelectedCompany} />
+          </div>
+        </section>
+
+        {/* ═══ GLOSSARY ═══ */}
+        <Glossary />
       </main>
 
       {/* Drawer */}
@@ -1150,5 +1171,301 @@ function ExplainerCard({ title, body }: { title: string; body: string }) {
       <h4 className="text-sm font-bold text-slate-900 mb-2">{title}</h4>
       <p className="text-xs text-slate-600 leading-relaxed">{body}</p>
     </div>
+  )
+}
+
+/* ─── Section Header ─── */
+function SectionHeader({
+  eyebrow,
+  title,
+  subtitle,
+}: {
+  eyebrow: string
+  title: string
+  subtitle?: string
+}) {
+  return (
+    <div className="mb-5 sm:mb-6">
+      <div className="text-[10px] sm:text-[11px] font-semibold text-accent uppercase tracking-[0.16em] mb-2">
+        {eyebrow}
+      </div>
+      <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight leading-tight">
+        {title}
+      </h2>
+      {subtitle && (
+        <p className="text-sm sm:text-base text-slate-600 mt-2 max-w-3xl leading-relaxed">{subtitle}</p>
+      )}
+    </div>
+  )
+}
+
+/* ─── Dilution Explainer ─── */
+function DilutionExplainer() {
+  // 3 snapshots showing how 10% ownership shrinks as company issues 15% SBC/yr
+  const steps = [
+    { year: "Year 0", totalShares: 100, youOwn: 10, label: "You buy 10 shares" },
+    { year: "Year 1", totalShares: 115, youOwn: 10, label: "+15 shares issued to employees" },
+    { year: "Year 5", totalShares: 201, youOwn: 10, label: "Compounding dilution" },
+  ]
+
+  return (
+    <section className="bg-surface border border-border rounded-2xl shadow-sm overflow-hidden">
+      <div className="px-5 sm:px-8 pt-6 sm:pt-8 pb-5 sm:pb-6 border-b border-border bg-gradient-to-br from-slate-50 to-transparent">
+        <div className="text-[11px] font-semibold text-accent uppercase tracking-[0.16em] mb-2">
+          How dilution actually works
+        </div>
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+          Your slice of the pie keeps shrinking
+        </h2>
+        <p className="text-sm sm:text-base text-slate-600 mt-2 max-w-2xl leading-relaxed">
+          When a company pays employees in stock, it creates new shares. Your ownership stake shrinks every
+          year — even if you never sold. Here's what 15% annual SBC looks like to a 10% owner.
+        </p>
+      </div>
+
+      <div className="p-5 sm:p-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+          {steps.map((s, i) => {
+            const pct = (s.youOwn / s.totalShares) * 100
+            const prev = i > 0 ? (steps[i - 1].youOwn / steps[i - 1].totalShares) * 100 : pct
+            const delta = pct - prev
+            return (
+              <div key={i} className="relative">
+                <div className="bg-base border border-border rounded-2xl p-5 sm:p-6 h-full">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-[0.14em]">
+                      {s.year}
+                    </span>
+                    {delta < 0 && (
+                      <span className="text-[10px] font-mono font-bold text-red-600 bg-red-50 border border-red-200 rounded-full px-2 py-0.5">
+                        {delta.toFixed(2)} pts
+                      </span>
+                    )}
+                  </div>
+                  <DonutOwnership pct={pct} />
+                  <div className="mt-4 space-y-1">
+                    <div className="text-xs text-slate-500 font-mono">
+                      {s.youOwn} / {s.totalShares} shares
+                    </div>
+                    <div className="text-sm font-semibold text-slate-900">{s.label}</div>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        <div className="mt-6 sm:mt-8 bg-red-50 border border-red-200 rounded-xl px-4 sm:px-5 py-4 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+          <p className="text-sm text-red-900 leading-relaxed">
+            <span className="font-bold">You never sold a share — but you lost half your ownership.</span>{" "}
+            This is why SBC is a real cost to shareholders, even when it's buried below the "adjusted earnings" line.
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function DonutOwnership({ pct }: { pct: number }) {
+  const radius = 52
+  const circumference = 2 * Math.PI * radius
+  const offset = circumference - (pct / 100) * circumference
+  return (
+    <div className="relative flex items-center justify-center">
+      <svg width="140" height="140" viewBox="0 0 140 140" className="-rotate-90">
+        <circle cx="70" cy="70" r={radius} fill="none" stroke="#e2e8f0" strokeWidth="14" />
+        <circle
+          cx="70"
+          cy="70"
+          r={radius}
+          fill="none"
+          stroke="#0284c7"
+          strokeWidth="14"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          style={{ transition: "stroke-dashoffset 0.6s ease" }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <div className="text-2xl sm:text-[28px] font-bold font-mono text-slate-900 leading-none">
+          {pct.toFixed(2)}%
+        </div>
+        <div className="text-[10px] text-slate-500 uppercase tracking-wider mt-1 font-semibold">
+          Your stake
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ─── Hall of Shame ─── */
+function HallOfShame({
+  worstValue,
+  worstSBCPct,
+  worstYTD,
+  worstSBCLost,
+  worstPerEmp,
+  onSelect,
+}: {
+  worstValue: CompanyWithMetrics
+  worstSBCPct: CompanyWithMetrics
+  worstYTD: CompanyWithMetrics
+  worstSBCLost: CompanyWithMetrics
+  worstPerEmp: CompanyWithMetrics
+  onSelect: (c: CompanyWithMetrics) => void
+}) {
+  const rows = [
+    {
+      rank: 1,
+      category: "Biggest $ Destroyed",
+      icon: <TrendingDown className="w-4 h-4" />,
+      c: worstValue,
+      stat: formatBillions(worstValue.valueDestroyedB),
+      detail: `${formatPct(worstValue.delta52w)} from 52w high`,
+    },
+    {
+      rank: 2,
+      category: "Worst SBC % Revenue",
+      icon: <Percent className="w-4 h-4" />,
+      c: worstSBCPct,
+      stat: `${worstSBCPct.sbcPctRevenue.toFixed(1)}%`,
+      detail: `${formatMillions(worstSBCPct.sbcAnnualM)} on ${formatMillions(worstSBCPct.revenueM)} rev`,
+    },
+    {
+      rank: 3,
+      category: "Steepest YTD Drop",
+      icon: <Flame className="w-4 h-4" />,
+      c: worstYTD,
+      stat: formatPct(worstYTD.pctYTD),
+      detail: `trading at $${worstYTD.price.toFixed(2)}`,
+    },
+    {
+      rank: 4,
+      category: "Most SBC Value Lost",
+      icon: <Zap className="w-4 h-4" />,
+      c: worstSBCLost,
+      stat: formatMillions(worstSBCLost.sbcValueLostM),
+      detail: `6-month comp wiped out`,
+    },
+    {
+      rank: 5,
+      category: "Highest SBC / Employee",
+      icon: <Coins className="w-4 h-4" />,
+      c: worstPerEmp,
+      stat: formatK(worstPerEmp.sbcPerEmployeeK),
+      detail: `${worstPerEmp.employees.toLocaleString()} employees`,
+    },
+  ]
+
+  return (
+    <section>
+      <SectionHeader
+        eyebrow="Hall of Shame"
+        title="The worst of the worst"
+        subtitle="Five categories. Five companies. No winners — just the leader in each race to the bottom."
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+        {rows.map((r) => (
+          <button
+            key={r.rank}
+            onClick={() => onSelect(r.c)}
+            className="text-left bg-surface border border-border rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-lg hover:border-red-300 transition-all group relative overflow-hidden"
+          >
+            <div className="absolute -top-6 -right-6 w-20 h-20 bg-red-50 rounded-full blur-2xl pointer-events-none" />
+            <div className="relative flex items-center justify-between mb-3">
+              <div className="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center text-sm font-bold font-mono shadow">
+                {r.rank}
+              </div>
+              <div className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
+                {r.icon}
+              </div>
+            </div>
+            <div className="relative text-[10px] font-semibold text-slate-500 uppercase tracking-[0.1em] mb-1">
+              {r.category}
+            </div>
+            <div className="relative text-2xl sm:text-[26px] font-bold font-mono text-red-600 leading-none">
+              {r.stat}
+            </div>
+            <div className="relative mt-3 pt-3 border-t border-border">
+              <div className="font-mono font-bold text-accent text-sm">{r.c.ticker}</div>
+              <div className="text-sm font-semibold text-slate-900 truncate">{r.c.company}</div>
+              <div className="text-[11px] text-slate-500 mt-1 truncate">{r.detail}</div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+/* ─── Glossary ─── */
+function Glossary() {
+  const terms = [
+    {
+      term: "SBC",
+      full: "Stock-Based Compensation",
+      def: "Pay given to employees as shares or options instead of cash. Real expense, often hidden in 'adjusted' metrics.",
+    },
+    {
+      term: "Dilution",
+      full: "Shareholder Dilution",
+      def: "When a company creates new shares, existing shareholders own a smaller % of the business — without doing anything.",
+    },
+    {
+      term: "Value Destroyed",
+      full: "Peak-to-current Loss",
+      def: "Shareholder wealth evaporated vs the 52-week high. The paper money people thought they had but don't.",
+    },
+    {
+      term: "SBC % Revenue",
+      full: "SBC as share of top line",
+      def: "How much of every dollar earned is given back to employees in stock. Above 20% is a major red flag.",
+    },
+    {
+      term: "Market Cap",
+      full: "Total share value",
+      def: "Share price × total shares outstanding. How much the public market thinks the whole company is worth.",
+    },
+    {
+      term: "YTD %",
+      full: "Year-to-Date return",
+      def: "How much the stock is up or down since January 1 of the current year.",
+    },
+    {
+      term: "52w Δ",
+      full: "52-week change",
+      def: "How far the stock has fallen from its highest point in the past year.",
+    },
+    {
+      term: "SBC Value Lost",
+      full: "Comp that lost its worth",
+      def: "When the stock drops, the 6 months of SBC already paid out is now worth much less — but the shares are still out there.",
+    },
+  ]
+
+  return (
+    <section>
+      <SectionHeader
+        eyebrow="Glossary"
+        title="Decode the metrics"
+        subtitle="Every term used on this page, explained in plain English."
+      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {terms.map((t) => (
+          <div
+            key={t.term}
+            className="bg-surface border border-border rounded-xl p-4 sm:p-5 shadow-sm hover:border-accent/40 hover:shadow-md transition-all"
+          >
+            <div className="font-mono font-bold text-accent text-sm">{t.term}</div>
+            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mt-0.5">
+              {t.full}
+            </div>
+            <p className="text-xs sm:text-sm text-slate-700 mt-2.5 leading-relaxed">{t.def}</p>
+          </div>
+        ))}
+      </div>
+    </section>
   )
 }
