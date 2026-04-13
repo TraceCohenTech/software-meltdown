@@ -14,7 +14,7 @@ import {
   Cell,
   LabelList,
 } from "recharts"
-import { X, ArrowUpDown, TrendingDown, DollarSign, Percent, AlertTriangle } from "lucide-react"
+import { X, ArrowUpDown, TrendingDown, DollarSign, Percent, AlertTriangle, Flame, Users, Clock, Zap, ChevronDown } from "lucide-react"
 import { companies } from "@/lib/data"
 import {
   computeMetrics,
@@ -79,22 +79,157 @@ export default function MeltdownDashboard() {
     c.sbcPctRevenue > worst.sbcPctRevenue ? c : worst
   )
 
+  // Fun fact computations
+  const totalEmployees = data.reduce((s, c) => s + c.employees, 0)
+  const sbcPerDay = (totalSBC * 1_000_000) / 365
+  const companiesOver20Pct = data.filter((c) => c.sbcPctRevenue > 20).length
+  const highestSBCPerEmp = data.reduce((best, c) =>
+    c.sbcPerEmployeeK > best.sbcPerEmployeeK ? c : best
+  )
+  const totalSBCValueLost = data.reduce((s, c) => s + c.sbcValueLostM, 0)
+  const medianYTD = [...data].sort((a, b) => a.pctYTD - b.pctYTD)[Math.floor(data.length / 2)]
+
+  const [showMethodology, setShowMethodology] = useState(false)
+
   return (
     <div className="min-h-screen bg-base">
-      {/* Header */}
-      <header className="border-b border-border px-4 sm:px-8 py-6">
-        <div className="max-w-[1400px] mx-auto">
-          <h1 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-tight">
-            Software Meltdown
+      {/* ═══ HERO ═══ */}
+      <header className="relative overflow-hidden border-b border-border">
+        {/* Background glow effects */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-red-500/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-accent/5 rounded-full blur-3xl" />
+
+        <div className="relative max-w-[1400px] mx-auto px-4 sm:px-8 pt-10 sm:pt-16 pb-8 sm:pb-12">
+          {/* Top tag */}
+          <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-full px-3 py-1 mb-6">
+            <Flame className="w-3.5 h-3.5 text-red-400" />
+            <span className="text-xs font-medium text-red-400 tracking-wide uppercase">
+              Value Destruction Tracker
+            </span>
+          </div>
+
+          {/* Main headline */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary tracking-tight leading-[1.1] max-w-3xl">
+            Software{" "}
+            <span className="relative">
+              <span className="text-red-400">Meltdown</span>
+              <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 300 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 4 Q75 8 150 4 Q225 0 300 4" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
+              </svg>
+            </span>
           </h1>
-          <p className="text-text-muted text-sm mt-1">
-            SBC & Value Destruction Tracker — 35 Public Software Companies
+
+          <p className="text-lg sm:text-xl text-text-muted mt-4 max-w-2xl leading-relaxed">
+            <span className="text-text-primary font-semibold">{formatBillions(totalValueDestroyed)}</span>{" "}
+            in shareholder value vaporized across 35 public software companies — while they paid out{" "}
+            <span className="text-accent font-semibold">{formatMillions(totalSBC)}</span> in annual stock-based compensation.
           </p>
+
+          <p className="text-sm text-text-muted mt-3 max-w-xl">
+            Tracking the gap between what software companies pay employees in stock and what shareholders actually receive. SBC dilutes ownership. When stocks crater, so does the value of that compensation — but the dilution remains.
+          </p>
+
+          {/* Scroll indicator */}
+          <div className="mt-8 flex items-center gap-2 text-text-muted text-xs">
+            <ChevronDown className="w-4 h-4 animate-bounce" />
+            <span>Scroll to explore the data</span>
+          </div>
         </div>
       </header>
 
       <main className="max-w-[1400px] mx-auto px-4 sm:px-8 py-6 space-y-6">
-        {/* Stat Bar */}
+        {/* ═══ FUN FACTS ═══ */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          <FunFact
+            icon={<Clock className="w-4 h-4" />}
+            stat={`$${(sbcPerDay / 1_000_000).toFixed(1)}M`}
+            label="in SBC issued per day"
+            sublabel="across these 35 companies"
+            color="text-accent"
+          />
+          <FunFact
+            icon={<Flame className="w-4 h-4" />}
+            stat={`${companiesOver20Pct}`}
+            label="companies spend >20% of revenue on SBC"
+            sublabel={`out of 35 tracked (${((companiesOver20Pct / 35) * 100).toFixed(0)}%)`}
+            color="text-orange-400"
+          />
+          <FunFact
+            icon={<Users className="w-4 h-4" />}
+            stat={formatK(highestSBCPerEmp.sbcPerEmployeeK)}
+            label={`per employee at ${highestSBCPerEmp.company}`}
+            sublabel="highest SBC per headcount"
+            color="text-yellow-400"
+          />
+          <FunFact
+            icon={<TrendingDown className="w-4 h-4" />}
+            stat={formatPct(medianYTD.pctYTD)}
+            label="median YTD stock decline"
+            sublabel={`median company: ${medianYTD.company}`}
+            color="text-red-400"
+          />
+          <FunFact
+            icon={<Zap className="w-4 h-4" />}
+            stat={formatMillions(totalSBCValueLost)}
+            label="in SBC value evaporated"
+            sublabel="6-month comp wiped by stock drops"
+            color="text-red-400"
+          />
+          <FunFact
+            icon={<Users className="w-4 h-4" />}
+            stat={`${(totalEmployees / 1000).toFixed(0)}K`}
+            label="employees across all 35 companies"
+            sublabel={`avg SBC: ${formatK(totalSBC * 1000 / totalEmployees)} per person`}
+            color="text-accent"
+          />
+        </div>
+
+        {/* ═══ METHODOLOGY ═══ */}
+        <div className="bg-surface border border-border rounded-lg">
+          <button
+            onClick={() => setShowMethodology(!showMethodology)}
+            className="w-full flex items-center justify-between px-5 py-4 text-left"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4 text-accent" />
+              </div>
+              <div>
+                <span className="text-sm font-medium text-text-primary">
+                  What is SBC & why does it matter?
+                </span>
+                <span className="text-xs text-text-muted block mt-0.5">
+                  Methodology, definitions, and why shareholders should care
+                </span>
+              </div>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-text-muted transition-transform ${showMethodology ? "rotate-180" : ""}`} />
+          </button>
+          {showMethodology && (
+            <div className="px-5 pb-5 space-y-4 border-t border-border pt-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <ExplainerCard
+                  title="Stock-Based Compensation (SBC)"
+                  body="Companies pay employees with stock options and RSUs instead of cash. This dilutes existing shareholders — creating new shares and shrinking everyone else's ownership. SBC is a real cost that reduces earnings but is often excluded from 'adjusted' metrics."
+                />
+                <ExplainerCard
+                  title="Value Destroyed"
+                  body="Estimated by comparing the current market cap to the peak market cap implied by the 52-week high. This represents the maximum shareholder wealth that has evaporated during the downturn — real money that investors lost."
+                />
+                <ExplainerCard
+                  title="SBC Value Lost"
+                  body="When a company's stock drops, the SBC issued in the prior 6 months loses value too. Employees received shares that are now worth significantly less, but the dilution to shareholders still happened. The company 'spent' full price, shareholders got discounted returns."
+                />
+                <ExplainerCard
+                  title="Why SBC % Revenue Matters"
+                  body="A company paying 40% of its revenue in SBC is giving away almost half its top line to employees as stock. At single-digit percentages it's normal comp. Above 20%, shareholders are funding a transfer of wealth that may never be recouped."
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ═══ STAT BAR ═══ */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             label="Total Value Destroyed"
@@ -566,6 +701,42 @@ function MetricRow({
       <span className="text-sm font-mono font-medium" style={color ? { color } : { color: "#f1f5f9" }}>
         {value}
       </span>
+    </div>
+  )
+}
+
+/* ─── Fun Fact Card ─── */
+function FunFact({
+  icon,
+  stat,
+  label,
+  sublabel,
+  color,
+}: {
+  icon: React.ReactNode
+  stat: string
+  label: string
+  sublabel: string
+  color: string
+}) {
+  return (
+    <div className="bg-surface border border-border rounded-lg p-4 hover:border-border/80 transition-colors">
+      <div className={`flex items-center gap-2 ${color} mb-2`}>
+        {icon}
+      </div>
+      <div className={`text-2xl sm:text-3xl font-bold font-mono ${color}`}>{stat}</div>
+      <div className="text-sm text-text-primary mt-1 leading-snug">{label}</div>
+      <div className="text-xs text-text-muted mt-0.5">{sublabel}</div>
+    </div>
+  )
+}
+
+/* ─── Explainer Card ─── */
+function ExplainerCard({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="bg-base border border-border rounded-lg p-4">
+      <h4 className="text-sm font-semibold text-text-primary mb-2">{title}</h4>
+      <p className="text-xs text-text-muted leading-relaxed">{body}</p>
     </div>
   )
 }
