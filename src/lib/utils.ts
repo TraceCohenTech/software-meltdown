@@ -50,23 +50,23 @@ export function formatK(n: number): string {
 }
 
 export function colorForPct(v: number): string {
-  if (v <= -60) return "#ef4444"
-  if (v <= -40) return "#f97316"
-  if (v <= -20) return "#f59e0b"
-  if (v < 0) return "#fbbf24"
-  return "#22c55e"
+  if (v <= -60) return "#dc2626"
+  if (v <= -40) return "#ea580c"
+  if (v <= -20) return "#d97706"
+  if (v < 0) return "#ca8a04"
+  return "#16a34a"
 }
 
 export function colorForSBCPct(v: number): string {
-  if (v > 30) return "#ef4444"
-  if (v > 18) return "#f97316"
-  if (v > 8) return "#f59e0b"
-  return "#22c55e"
+  if (v > 30) return "#dc2626"
+  if (v > 18) return "#ea580c"
+  if (v > 8) return "#d97706"
+  return "#16a34a"
 }
 
 export function bgForSBCPct(v: number): string {
-  if (v > 30) return "bg-red-500/25 text-red-300 border border-red-500/20"
-  if (v > 18) return "bg-orange-500/25 text-orange-300 border border-orange-500/20"
-  if (v > 8) return "bg-yellow-500/25 text-yellow-300 border border-yellow-500/20"
-  return "bg-green-500/25 text-green-300 border border-green-500/20"
+  if (v > 30) return "bg-red-50 text-red-700 border border-red-200"
+  if (v > 18) return "bg-orange-50 text-orange-700 border border-orange-200"
+  if (v > 8) return "bg-amber-50 text-amber-700 border border-amber-200"
+  return "bg-emerald-50 text-emerald-700 border border-emerald-200"
 }
