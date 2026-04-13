@@ -13,6 +13,7 @@ import {
   Bar,
   Cell,
   LabelList,
+  ReferenceLine,
 } from "recharts"
 import {
   X,
@@ -194,7 +195,7 @@ export default function MeltdownDashboard() {
             <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-[0.18em]">
               The Numbers That Hurt
             </h2>
-            <span className="text-xs text-slate-400 hidden sm:block">
+            <span className="text-xs text-slate-500 hidden sm:block font-medium">
               {data.length} companies · updated Apr 9, 2026
             </span>
           </div>
@@ -237,7 +238,7 @@ export default function MeltdownDashboard() {
             <FunFact
               icon={<Users className="w-4 h-4" />}
               stat={`${(totalEmployees / 1000).toFixed(0)}K`}
-              label="employees across the 35 companies"
+              label={`employees across the ${data.length} companies`}
               sublabel={`avg ${formatK((totalSBC * 1000) / totalEmployees)} in SBC per person`}
               tone="blue"
             />
@@ -316,6 +317,22 @@ export default function MeltdownDashboard() {
             accent="red"
           />
         </div>
+
+        {/* ═══ FEATURED CHARTS ═══ */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+          <ChartCard
+            title="Top 10 Value Destroyers"
+            subtitle="Shareholder wealth evaporated vs 52-week highs"
+          >
+            <TopValueDestroyedChart data={data} onSelect={setSelectedCompany} />
+          </ChartCard>
+          <ChartCard
+            title="YTD Decline Distribution"
+            subtitle={`How deep the cuts go across ${data.length} companies`}
+          >
+            <YTDHistogram data={data} />
+          </ChartCard>
+        </section>
 
         {/* ═══ TAB BAR ═══ */}
         <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-sm">
@@ -425,7 +442,7 @@ function HeroStat({
         {label}
       </div>
       <div className={`text-xl sm:text-3xl font-bold font-mono mt-1 sm:mt-1.5 ${color} break-words`}>{value}</div>
-      <div className="text-[10px] sm:text-xs text-slate-400 mt-0.5 sm:mt-1 truncate">{sub}</div>
+      <div className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 truncate">{sub}</div>
     </div>
   )
 }
@@ -584,6 +601,163 @@ function SBCTable({
   )
 }
 
+/* ─── Chart Card wrapper ─── */
+function ChartCard({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string
+  subtitle?: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="bg-surface border border-border rounded-2xl shadow-sm overflow-hidden">
+      <div className="px-5 sm:px-6 pt-5 pb-3 border-b border-border">
+        <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">{title}</h3>
+        {subtitle && <p className="text-xs sm:text-sm text-slate-500 mt-1">{subtitle}</p>}
+      </div>
+      <div className="p-3 sm:p-4">{children}</div>
+    </div>
+  )
+}
+
+/* ─── Top Value Destroyers bar ─── */
+function TopValueDestroyedChart({
+  data,
+  onSelect,
+}: {
+  data: CompanyWithMetrics[]
+  onSelect: (c: CompanyWithMetrics) => void
+}) {
+  const top = [...data]
+    .sort((a, b) => b.valueDestroyedB - a.valueDestroyedB)
+    .slice(0, 10)
+    .map((c) => ({
+      ticker: c.ticker,
+      company: c.company,
+      value: Number(c.valueDestroyedB.toFixed(1)),
+      pctYTD: c.pctYTD,
+      _company: c,
+    }))
+
+  return (
+    <ResponsiveContainer width="100%" height={360}>
+      <BarChart data={top} layout="vertical" margin={{ top: 5, right: 60, left: 8, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} horizontal={false} />
+        <XAxis
+          type="number"
+          tick={{ fill: AXIS_FILL, fontSize: 11 }}
+          tickFormatter={(v: number) => `$${v >= 1000 ? `${(v / 1000).toFixed(1)}T` : `${v}B`}`}
+        />
+        <YAxis
+          dataKey="ticker"
+          type="category"
+          tick={{ fill: TEXT_DARK, fontSize: 11, fontFamily: "var(--font-mono)", fontWeight: 600 }}
+          width={52}
+          axisLine={false}
+          tickLine={false}
+        />
+        <RechartsTooltip
+          cursor={{ fill: "rgba(220, 38, 38, 0.06)" }}
+          content={({ payload }) => {
+            if (!payload?.[0]) return null
+            const d = payload[0].payload
+            return (
+              <div className="bg-surface border border-border rounded-lg px-3 py-2.5 text-xs shadow-xl">
+                <div className="font-mono font-bold text-accent text-sm">{d.ticker}</div>
+                <div className="text-slate-700 font-medium">{d.company}</div>
+                <div className="text-red-600 font-semibold mt-1">-{formatBillions(d.value)} wiped</div>
+                <div className="text-slate-500">YTD: {formatPct(d.pctYTD)}</div>
+              </div>
+            )
+          }}
+        />
+        <Bar
+          dataKey="value"
+          radius={[0, 6, 6, 0]}
+          cursor="pointer"
+          onClick={(entry: any) => {
+            if (entry?._company) onSelect(entry._company)
+          }}
+        >
+          {top.map((_, i) => (
+            <Cell key={i} fill="#dc2626" fillOpacity={0.85 - i * 0.035} />
+          ))}
+          <LabelList
+            dataKey="value"
+            position="right"
+            formatter={(v) => `$${Number(v).toFixed(0)}B`}
+            style={{ fill: "#dc2626", fontSize: 11, fontFamily: "var(--font-mono)", fontWeight: 700 }}
+          />
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  )
+}
+
+/* ─── YTD Decline Histogram ─── */
+function YTDHistogram({ data }: { data: CompanyWithMetrics[] }) {
+  const buckets = [
+    { key: "positive", label: "Up", min: 0, max: Infinity, color: "#16a34a" },
+    { key: "b1", label: "0 to -15%", min: -15, max: 0, color: "#ca8a04" },
+    { key: "b2", label: "-15 to -30%", min: -30, max: -15, color: "#d97706" },
+    { key: "b3", label: "-30 to -45%", min: -45, max: -30, color: "#ea580c" },
+    { key: "b4", label: "-45 to -60%", min: -60, max: -45, color: "#dc2626" },
+    { key: "b5", label: "< -60%", min: -Infinity, max: -60, color: "#991b1b" },
+  ]
+  const chartData = buckets.map((b) => ({
+    label: b.label,
+    count: data.filter((c) => c.pctYTD > b.min && c.pctYTD <= b.max).length,
+    color: b.color,
+  }))
+
+  return (
+    <ResponsiveContainer width="100%" height={360}>
+      <BarChart data={chartData} margin={{ top: 20, right: 16, left: 0, bottom: 28 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} vertical={false} />
+        <XAxis
+          dataKey="label"
+          tick={{ fill: AXIS_FILL, fontSize: 10 }}
+          interval={0}
+          angle={-15}
+          textAnchor="end"
+          height={50}
+        />
+        <YAxis
+          tick={{ fill: AXIS_FILL, fontSize: 11 }}
+          allowDecimals={false}
+          label={{ value: "Companies", angle: -90, position: "insideLeft", fill: AXIS_FILL, fontSize: 11 }}
+        />
+        <RechartsTooltip
+          cursor={{ fill: "rgba(15, 23, 42, 0.04)" }}
+          content={({ payload }) => {
+            if (!payload?.[0]) return null
+            const d = payload[0].payload
+            return (
+              <div className="bg-surface border border-border rounded-lg px-3 py-2 text-xs shadow-xl">
+                <div className="font-semibold text-slate-900">{d.label}</div>
+                <div className="text-slate-600 font-mono mt-0.5">{d.count} companies</div>
+              </div>
+            )
+          }}
+        />
+        <ReferenceLine x="0 to -15%" stroke="#e2e8f0" />
+        <Bar dataKey="count" radius={[8, 8, 0, 0]} maxBarSize={56}>
+          {chartData.map((entry, i) => (
+            <Cell key={i} fill={entry.color} fillOpacity={0.85} />
+          ))}
+          <LabelList
+            dataKey="count"
+            position="top"
+            style={{ fill: "#0f172a", fontSize: 12, fontFamily: "var(--font-mono)", fontWeight: 700 }}
+          />
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  )
+}
+
 /* ─── Mobile Sort Bar ─── */
 function MobileSortBar({
   sortKey,
@@ -656,7 +830,7 @@ function MobileCardList({
               <div className="text-base font-mono font-bold" style={{ color: colorForPct(c.pctYTD) }}>
                 {formatPct(c.pctYTD)}
               </div>
-              <div className="text-[10px] text-slate-400 uppercase tracking-wide">YTD</div>
+              <div className="text-[10px] text-slate-500 font-semibold uppercase tracking-wide">YTD</div>
             </div>
           </div>
           <div className="mt-3 grid grid-cols-3 gap-2">
