@@ -122,30 +122,30 @@ export default function MeltdownDashboard() {
         <div className="absolute -top-32 left-1/3 w-[620px] h-[620px] bg-red-500/[0.08] rounded-full blur-[140px] pointer-events-none" />
         <div className="absolute -bottom-40 right-1/4 w-[520px] h-[520px] bg-accent/[0.10] rounded-full blur-[130px] pointer-events-none" />
 
-        <div className="relative max-w-[1400px] mx-auto px-4 sm:px-8 pt-14 sm:pt-20 pb-12 sm:pb-16">
-          <div className="inline-flex items-center gap-2 bg-red-50 border border-red-200 rounded-full px-3.5 py-1.5 mb-6 shadow-sm">
+        <div className="relative max-w-[1400px] mx-auto px-4 sm:px-8 pt-10 sm:pt-20 pb-10 sm:pb-16">
+          <div className="inline-flex items-center gap-2 bg-red-50 border border-red-200 rounded-full px-3 py-1.5 mb-5 sm:mb-6 shadow-sm">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
             </span>
-            <span className="text-[11px] font-semibold text-red-700 tracking-[0.14em] uppercase">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-red-700 tracking-[0.12em] sm:tracking-[0.14em] uppercase">
               Live Value Destruction Tracker
             </span>
           </div>
 
-          <h1 className="text-[44px] sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.02] max-w-4xl text-slate-900">
+          <h1 className="text-[36px] sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05] sm:leading-[1.02] max-w-4xl text-slate-900">
             The Great{" "}
             <span className="relative inline-block">
               <span className="bg-gradient-to-br from-red-500 via-red-600 to-orange-600 bg-clip-text text-transparent">
                 Software Meltdown
               </span>
-              <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 500 10" fill="none" preserveAspectRatio="none">
+              <svg className="absolute -bottom-1.5 sm:-bottom-2 left-0 w-full" viewBox="0 0 500 10" fill="none" preserveAspectRatio="none">
                 <path d="M0 5 Q125 10 250 5 T500 5" stroke="#dc2626" strokeWidth="3" strokeLinecap="round" opacity="0.5" />
               </svg>
             </span>
           </h1>
 
-          <p className="text-xl sm:text-2xl text-slate-700 mt-7 max-w-3xl leading-[1.45] font-medium">
+          <p className="text-lg sm:text-2xl text-slate-700 mt-5 sm:mt-7 max-w-3xl leading-[1.45] font-medium">
             <span className="text-slate-900 font-bold">{formatBillions(totalValueDestroyed)}</span>{" "}
             vaporized across {data.length} public software companies —
             while they kept paying out{" "}
@@ -153,13 +153,13 @@ export default function MeltdownDashboard() {
             a year in stock-based compensation.
           </p>
 
-          <p className="text-base text-slate-500 mt-5 max-w-2xl leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-500 mt-4 sm:mt-5 max-w-2xl leading-relaxed">
             SBC dilutes ownership forever. When the stock craters, employees' comp evaporates too —
             but shareholders still foot the bill. This is the gap between the promise and the payout.
           </p>
 
           {/* ─── Hero stat strip ─── */}
-          <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-px rounded-2xl overflow-hidden border border-border bg-border shadow-sm">
+          <div className="mt-7 sm:mt-10 grid grid-cols-2 sm:grid-cols-4 gap-px rounded-2xl overflow-hidden border border-border bg-border shadow-sm">
             <HeroStat
               label="Companies tracked"
               value={`${data.length}`}
@@ -187,7 +187,7 @@ export default function MeltdownDashboard() {
         </div>
       </header>
 
-      <main className="max-w-[1400px] mx-auto px-4 sm:px-8 py-12 space-y-10">
+      <main className="max-w-[1400px] mx-auto px-4 sm:px-8 py-8 sm:py-12 space-y-8 sm:space-y-10">
         {/* ═══ FUN FACTS ═══ */}
         <section>
           <div className="flex items-baseline justify-between mb-5">
@@ -248,25 +248,25 @@ export default function MeltdownDashboard() {
         <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-sm">
           <button
             onClick={() => setShowMethodology(!showMethodology)}
-            className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-slate-50 transition-colors"
+            className="w-full flex items-center justify-between gap-3 px-4 sm:px-6 py-4 sm:py-5 text-left hover:bg-slate-50 transition-colors"
           >
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-                <AlertTriangle className="w-5 h-5 text-accent" />
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
               </div>
-              <div>
-                <span className="text-base font-semibold text-slate-900">
-                  What is SBC, and why should it make you angry?
+              <div className="min-w-0">
+                <span className="text-sm sm:text-base font-semibold text-slate-900 block">
+                  What is SBC, and why should it matter?
                 </span>
-                <span className="text-sm text-slate-500 block mt-0.5">
+                <span className="hidden sm:block text-xs sm:text-sm text-slate-500 mt-0.5">
                   Methodology, definitions, and why shareholders should care
                 </span>
               </div>
             </div>
-            <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${showMethodology ? "rotate-180" : ""}`} />
+            <ChevronDown className={`w-5 h-5 text-slate-400 shrink-0 transition-transform duration-200 ${showMethodology ? "rotate-180" : ""}`} />
           </button>
           {showMethodology && (
-            <div className="px-6 pb-6 space-y-4 border-t border-border pt-5">
+            <div className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-4 border-t border-border pt-4 sm:pt-5">
               <div className="grid sm:grid-cols-2 gap-3">
                 <ExplainerCard
                   title="Stock-Based Compensation (SBC)"
@@ -319,44 +319,52 @@ export default function MeltdownDashboard() {
 
         {/* ═══ TAB BAR ═══ */}
         <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-sm">
-          <div className="flex items-center gap-1 px-4 pt-3 pb-0 border-b border-border">
+          <div className="flex flex-wrap items-center gap-1 px-2 sm:px-4 pt-2 sm:pt-3 pb-0 border-b border-border">
             {(["table", "scatter", "bar"] as ViewTab[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2.5 text-sm font-semibold capitalize transition-all border-b-2 -mb-[1px] rounded-t-md ${
+                className={`px-3 sm:px-4 py-2.5 text-sm font-semibold capitalize transition-all border-b-2 -mb-[1px] rounded-t-md ${
                   activeTab === tab
                     ? "border-accent text-accent bg-accent/5"
                     : "border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-50"
                 }`}
               >
-                {tab === "scatter" ? "Scatter Plot" : tab === "bar" ? "Bar Chart" : "Table"}
+                {tab === "scatter" ? "Scatter" : tab === "bar" ? "Bar" : "Table"}
               </button>
             ))}
-
-            {activeTab === "table" && (
-              <div className="ml-auto pb-2">
-                <input
-                  type="text"
-                  placeholder="Filter by ticker or name..."
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
-                  className="bg-base border border-border rounded-lg px-3 py-1.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 w-56 transition-all"
-                />
-              </div>
-            )}
           </div>
+
+          {activeTab === "table" && (
+            <div className="px-3 sm:px-4 pt-3">
+              <input
+                type="text"
+                placeholder="Filter by ticker or name..."
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="bg-base border border-border rounded-lg px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 w-full sm:w-64 transition-all"
+              />
+            </div>
+          )}
 
           {/* ═══ VIEWS ═══ */}
           <div className="p-1">
             {activeTab === "table" && (
-              <SBCTable
-                data={filtered}
-                sortKey={sortKey}
-                sortDir={sortDir}
-                onSort={toggleSort}
-                onSelect={setSelectedCompany}
-              />
+              <>
+                <div className="hidden sm:block">
+                  <SBCTable
+                    data={filtered}
+                    sortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={toggleSort}
+                    onSelect={setSelectedCompany}
+                  />
+                </div>
+                <div className="sm:hidden">
+                  <MobileSortBar sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
+                  <MobileCardList data={filtered} onSelect={setSelectedCompany} />
+                </div>
+              </>
             )}
             {activeTab === "scatter" && <SBCScatterPlot data={data} onSelect={setSelectedCompany} />}
             {activeTab === "bar" && <SBCBarChart data={data} onSelect={setSelectedCompany} />}
@@ -412,12 +420,12 @@ function HeroStat({
   const color =
     accent === "red" ? "text-red-600" : accent === "blue" ? "text-accent" : "text-slate-900"
   return (
-    <div className="bg-surface px-5 py-5 sm:px-6 sm:py-6">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+    <div className="bg-surface px-4 py-4 sm:px-6 sm:py-6">
+      <div className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.12em] sm:tracking-[0.14em] text-slate-500">
         {label}
       </div>
-      <div className={`text-2xl sm:text-3xl font-bold font-mono mt-1.5 ${color}`}>{value}</div>
-      <div className="text-xs text-slate-400 mt-1">{sub}</div>
+      <div className={`text-xl sm:text-3xl font-bold font-mono mt-1 sm:mt-1.5 ${color} break-words`}>{value}</div>
+      <div className="text-[10px] sm:text-xs text-slate-400 mt-0.5 sm:mt-1 truncate">{sub}</div>
     </div>
   )
 }
@@ -454,17 +462,17 @@ function StatCard({
 
   return (
     <div
-      className={`bg-surface border border-border rounded-2xl p-5 sm:p-6 transition-all duration-200 hover:shadow-lg ${palette.hover} group shadow-sm`}
+      className={`bg-surface border border-border rounded-2xl p-4 sm:p-6 transition-all duration-200 hover:shadow-lg ${palette.hover} group shadow-sm`}
     >
-      <div className="flex items-center justify-between mb-3">
-        <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.12em]">
+      <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
+        <div className="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase tracking-[0.1em] sm:tracking-[0.12em] leading-tight">
           {label}
         </div>
-        <div className={`w-8 h-8 rounded-lg ${palette.iconBg} ${palette.text} flex items-center justify-center`}>
+        <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg ${palette.iconBg} ${palette.text} flex items-center justify-center shrink-0`}>
           {icon}
         </div>
       </div>
-      <div className={`text-[28px] sm:text-[32px] font-bold font-mono ${palette.text} leading-none`}>
+      <div className={`text-[22px] sm:text-[32px] font-bold font-mono ${palette.text} leading-none break-words`}>
         {value}
       </div>
     </div>
@@ -576,6 +584,110 @@ function SBCTable({
   )
 }
 
+/* ─── Mobile Sort Bar ─── */
+function MobileSortBar({
+  sortKey,
+  sortDir,
+  onSort,
+}: {
+  sortKey: SortKey
+  sortDir: SortDir
+  onSort: (key: SortKey) => void
+}) {
+  const options: { key: SortKey; label: string }[] = [
+    { key: "pctYTD", label: "YTD %" },
+    { key: "valueDestroyedB", label: "Value Lost" },
+    { key: "sbcAnnualM", label: "SBC/Yr" },
+    { key: "sbcPctRevenue", label: "SBC %" },
+    { key: "marketCapB", label: "Mkt Cap" },
+  ]
+  return (
+    <div className="flex items-center gap-2 px-3 py-3 overflow-x-auto border-b border-border">
+      <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider shrink-0">Sort</span>
+      {options.map((o) => {
+        const active = sortKey === o.key
+        return (
+          <button
+            key={o.key}
+            onClick={() => onSort(o.key)}
+            className={`shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+              active
+                ? "bg-accent/10 border-accent/30 text-accent"
+                : "bg-slate-50 border-border text-slate-600"
+            }`}
+          >
+            {o.label}
+            {active && (sortDir === "asc" ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />)}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/* ─── Mobile Card List ─── */
+function MobileCardList({
+  data,
+  onSelect,
+}: {
+  data: CompanyWithMetrics[]
+  onSelect: (c: CompanyWithMetrics) => void
+}) {
+  if (data.length === 0) {
+    return <div className="px-4 py-12 text-center text-sm text-slate-500">No companies match.</div>
+  }
+  return (
+    <ul className="divide-y divide-border">
+      {data.map((c) => (
+        <li
+          key={c.ticker}
+          onClick={() => onSelect(c)}
+          className="px-4 py-4 active:bg-slate-100 cursor-pointer"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex items-baseline gap-2">
+                <span className="font-mono font-bold text-accent text-sm">{c.ticker}</span>
+                <span className="text-xs text-slate-500">{formatBillions(c.marketCapB)}</span>
+              </div>
+              <div className="text-sm font-semibold text-slate-900 truncate mt-0.5">{c.company}</div>
+            </div>
+            <div className="text-right shrink-0">
+              <div className="text-base font-mono font-bold" style={{ color: colorForPct(c.pctYTD) }}>
+                {formatPct(c.pctYTD)}
+              </div>
+              <div className="text-[10px] text-slate-400 uppercase tracking-wide">YTD</div>
+            </div>
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            <MobileMetric label="Value Lost" value={formatBillions(c.valueDestroyedB)} color="#dc2626" />
+            <MobileMetric label="SBC/Yr" value={formatMillions(c.sbcAnnualM)} />
+            <MobileMetric
+              label="SBC % Rev"
+              value={`${c.sbcPctRevenue.toFixed(0)}%`}
+              color={colorForSBCPct(c.sbcPctRevenue)}
+            />
+          </div>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function MobileMetric({ label, value, color }: { label: string; value: string; color?: string }) {
+  return (
+    <div className="bg-slate-50 rounded-lg px-2.5 py-2">
+      <div className="text-[9px] font-semibold uppercase tracking-wider text-slate-500">{label}</div>
+      <div
+        className="text-[13px] font-mono font-bold mt-0.5 truncate"
+        style={{ color: color ?? "#0f172a" }}
+      >
+        {value}
+      </div>
+    </div>
+  )
+}
+
 /* ─── Scatter Plot ─── */
 function SBCScatterPlot({
   data,
@@ -594,7 +706,7 @@ function SBCScatterPlot({
   }))
 
   return (
-    <div className="p-4 sm:p-6">
+    <div className="p-3 sm:p-6">
       <h3 className="text-sm font-semibold text-slate-600 mb-4">
         SBC % Revenue vs Value Destroyed — dot size = market cap, color = YTD %
       </h3>
@@ -678,12 +790,12 @@ function SBCBarChart({
     }))
 
   return (
-    <div className="p-4 sm:p-6">
+    <div className="p-3 sm:p-6">
       <h3 className="text-sm font-semibold text-slate-600 mb-4">
         Top 15 by Annual SBC ($M) — colored by SBC % Revenue
       </h3>
       <ResponsiveContainer width="100%" height={520}>
-        <BarChart data={top15} layout="vertical" margin={{ top: 5, right: 60, left: 60, bottom: 5 }}>
+        <BarChart data={top15} layout="vertical" margin={{ top: 5, right: 50, left: 10, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} horizontal={false} />
           <XAxis
             type="number"
@@ -843,16 +955,16 @@ function FunFact({
 
   return (
     <div
-      className={`bg-surface border border-border rounded-2xl p-5 sm:p-6 hover:shadow-md ${palette.border} transition-all duration-200 group shadow-sm`}
+      className={`bg-surface border border-border rounded-2xl p-4 sm:p-6 hover:shadow-md ${palette.border} transition-all duration-200 group shadow-sm`}
     >
-      <div className={`w-9 h-9 rounded-xl ${palette.iconBg} ${palette.text} flex items-center justify-center mb-4`}>
+      <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl ${palette.iconBg} ${palette.text} flex items-center justify-center mb-3 sm:mb-4`}>
         {icon}
       </div>
-      <div className={`text-[30px] sm:text-[34px] font-bold font-mono ${palette.text} leading-none`}>
+      <div className={`text-[24px] sm:text-[34px] font-bold font-mono ${palette.text} leading-none break-words`}>
         {stat}
       </div>
-      <div className="text-sm text-slate-900 mt-3 leading-snug font-semibold">{label}</div>
-      <div className="text-xs text-slate-500 mt-1">{sublabel}</div>
+      <div className="text-[13px] sm:text-sm text-slate-900 mt-2.5 sm:mt-3 leading-snug font-semibold">{label}</div>
+      <div className="text-[11px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1">{sublabel}</div>
     </div>
   )
 }
