@@ -48,4 +48,5 @@ export const companies: Company[] = [
   { ticker: "TWLO", company: "Twilio", price: 124.10, pctYTD: -13.13, delta52w: -14.94, marketCapB: 18.8, sbcAnnualM: 244, sbcPctRevenue: 11.8, revenueM: 2068, employees: 6000 },
   { ticker: "NET", company: "Cloudflare", price: 191.56, pctYTD: -3.64, delta52w: -26.32, marketCapB: 67.3, sbcAnnualM: 628, sbcPctRevenue: 17.3, revenueM: 1629, employees: 3800 },
   { ticker: "ZM", company: "Zoom", price: 83.98, pctYTD: -2.67, delta52w: -13.94, marketCapB: 24.7, sbcAnnualM: 266, sbcPctRevenue: 5.9, revenueM: 4527, employees: 7400 },
+  { ticker: "SNAP", company: "Snap", price: 7.18, pctYTD: -42.50, delta52w: -54.12, marketCapB: 12.1, sbcAnnualM: 1420, sbcPctRevenue: 27.2, revenueM: 5220, employees: 5000 },
 ]

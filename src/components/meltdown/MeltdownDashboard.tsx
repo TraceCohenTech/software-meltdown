@@ -150,7 +150,7 @@ export default function MeltdownDashboard() {
 
           <p className="text-lg sm:text-2xl text-slate-700 mt-5 sm:mt-7 max-w-3xl leading-[1.45] font-medium">
             <span className="text-slate-900 font-bold">{formatBillions(totalValueDestroyed)}</span>{" "}
-            vaporized across {data.length} public software companies —
+            vaporized across {data.length} public software &amp; tech companies —
             while they kept paying out{" "}
             <span className="text-accent font-bold">{formatMillions(totalSBC)}</span>{" "}
             a year in stock-based compensation.
