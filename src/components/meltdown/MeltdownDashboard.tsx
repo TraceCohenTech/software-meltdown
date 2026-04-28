@@ -419,7 +419,7 @@ export default function MeltdownDashboard() {
       <footer className="border-t border-border px-4 sm:px-8 py-8 mt-4 bg-surface">
         <div className="max-w-[1400px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-slate-500 text-xs">
-            Data as of April 9, 2026 · SBC from latest annual filings · Built by Value Add VC
+            Data as of April 27, 2026 · SBC from latest annual filings · Built by Value Add VC
           </p>
           <div className="flex items-center gap-5 text-xs">
             <a
